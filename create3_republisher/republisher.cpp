@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "irobot_create_msgs/srv/e_stop.hpp"
+#include "irobot_create_msgs/srv/reset_pose.hpp"
 #include "irobot_create_msgs/srv/robot_power.hpp"
 
 #include "irobot_create_msgs/action/audio_note_sequence.hpp"
@@ -166,6 +167,8 @@ private:
         // Note: here we could match the service type, but that would prevent to have two services with same type but different name
         if (entity_name_matches(client_topic, "/e_stop")) {
             make_service_pair<irobot_create_msgs::srv::EStop>(client_topic, server_topic);
+        } else if (entity_name_matches(client_topic, "/reset_pose")) {
+            make_service_pair<irobot_create_msgs::srv::ResetPose>(client_topic, server_topic);
         } else if (entity_name_matches(client_topic, "/robot_power")) {
             make_service_pair<irobot_create_msgs::srv::RobotPower>(client_topic, server_topic);
         } else {
@@ -273,7 +276,7 @@ private:
                     auto robot_goal_handle_fut = client->async_send_goal(*user_goal);
                     while(true) {
                         if (std::chrono::high_resolution_clock::now() - start_time >= action_timeout) {
-                            std::cerr << "WARNING: ROS 2 action " << client_name <<" timed-out while it's still waiting for a goal handle from the robot" << std::endl;
+                            std::cerr << "WARNING: ROS 2 action " << client_name << " timed-out while it's still waiting for a goal handle from the robot" << std::endl;
                             user_goal_handle->abort(std::make_shared<typename ActionT::Result>());
                             return;
                         }
@@ -289,11 +292,11 @@ private:
                     }
 
                     auto robot_goal_handle = robot_goal_handle_fut.get();
-                    std::cerr<<"Action request " << client_name << " received goal handle from the robot" << std::endl;
+                    std::cerr << "Action request " << client_name << " received goal handle from the robot" << std::endl;
                     auto result_fut = client->async_get_result(robot_goal_handle);
                     while(true) {
                         if (std::chrono::high_resolution_clock::now() - start_time >= action_timeout) {
-                            std::cerr << "WARNING: ROS 2 action " << client_name <<" timed-out while running" << std::endl;
+                            std::cerr << "WARNING: ROS 2 action " << client_name << " timed-out while running" << std::endl;
                             client->async_cancel_goal(robot_goal_handle);
                             user_goal_handle->abort(std::make_shared<typename ActionT::Result>());
                             return;
@@ -311,10 +314,10 @@ private:
                     }
                     auto wrapped_result = result_fut.get();
                     if (wrapped_result.code == rclcpp_action::ResultCode::SUCCEEDED) {
-                        std::cerr<<"Action request " << client_name << " SUCCESS received from the robot" << std::endl;
+                        std::cerr << "Action request " << client_name << " SUCCESS received from the robot" << std::endl;
                         user_goal_handle->succeed(wrapped_result.result);
                     } else {
-                        std::cerr<<"Action request " << client_name << " ERROR " << static_cast<int>(wrapped_result.code) << " received from the robot" << std::endl;
+                        std::cerr << "Action request " << client_name << " ERROR " << static_cast<int>(wrapped_result.code) << " received from the robot" << std::endl;
                         user_goal_handle->abort(wrapped_result.result);
                     }
                 });
@@ -329,6 +332,7 @@ private:
 
     bool entity_name_matches(const std::string & full_name, const std::string & entity_name)
     {
+        // This function currently checks whether the "full_name" ends with the "entity_name"
         if (full_name.length() < entity_name.length()) {
             return false;
         }

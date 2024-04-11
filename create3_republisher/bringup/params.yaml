@@ -34,6 +34,7 @@
       ]
       robot_services: [
         "e_stop", "irobot_create_msgs/srv/EStop",
+        "reset_pose", "irobot_create_msgs/srv/ResetPose",
         "robot_power", "irobot_create_msgs/srv/RobotPower",
       ]
       robot_actions: [

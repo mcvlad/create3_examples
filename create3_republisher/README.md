@@ -37,7 +37,7 @@ For example, this occurs when having your Create 3 robot connected to a Raspberr
 
 This procedure will use advanced communication configuration, and if stuff wasn't working before, it will be hard to debug it later.
 These instructions assume that you didn't need any custom DDS configuration to get communication working.
-If that's not the case, your custom configuration will likely need to be integrated with the provided XML config files, which is not covered by this tutorial.
+If that's not the case, your custom configuration will likely need to be integrated with the provided DDS configuration files, which is not covered by this tutorial.
 
 ## Connecting the Create 3 Robot and an SBC via the republisher
 
@@ -84,7 +84,7 @@ For example:
     **NOTE:** the list of entities that's republished is defined by the `params.yaml` file which you'll find at `~/ws/install/create3_republisher/share/create3_republisher/bringup/params.yaml`.
     Comment or uncomment entries in this file to customize it to your needs.
 
-1. Run your other applicatios that want to communicate with Create 3 in another terminal of the RaspberryPi (or other SBC) using a passive unicast XML profile.
+1. Run your other applicatios that want to communicate with Create 3 in another terminal of the RaspberryPi (or other SBC) using a passive unicast DDS configuration profile.
 For example:
 
     ```bash
@@ -130,6 +130,10 @@ Keep this in mind if you need to do further modifications to the configs, beside
 Run `ros2 daemon stop` whenever you modify DDS configuration file and/or environment variables.
 
 #### Why do I see the Create 3 names, but I can't communicate with them
+
+**NOTE:** having different applications run with different DDS configuration profiles (as it's done with the republisher) could mess up the ROS 2 daemon.
+Don't blindly trust the output of `ros2 topic list` and similar commands.
+Run with `--no-daemon` when possible and call `ros2 daemon stop` in every new terminal after setting the DDS configuration profiles.
 
 The "old" Create 3 entity names will not be usable anymore in this configuration.
 After running those steps, for example, you won't be able to subscribe to the robot tf topic via `ros2 topic echo /tf` but only via `ros2 topic echo /repub/tf`.
