@@ -10,10 +10,10 @@
       robot_publishers: [
         "battery_state", "sensor_msgs/msg/BatteryState",
       # "cliff_intensity", "irobot_create_msgs/msg/IrIntensityVector",
-      # "dock_status", "irobot_create_msgs/msg/DockStatus",
+        "dock_status", "irobot_create_msgs/msg/DockStatus",
       # "hazard_detection", "irobot_create_msgs/msg/HazardDetectionVector",
         "imu", "sensor_msgs/msg/Imu",
-      # "interface_buttons", "irobot_create_msgs/msg/InterfaceButtons",
+        "interface_buttons", "irobot_create_msgs/msg/InterfaceButtons",
       # "ir_intensity", "irobot_create_msgs/msg/IrIntensityVector",
       # "ir_opcode", "irobot_create_msgs/msg/IrOpcode",
       # "kidnap_status", "irobot_create_msgs/msg/KidnapStatus",
@@ -23,7 +23,7 @@
       # "stop_status", "irobot_create_msgs/msg/StopStatus",
         "tf", "tf2_msgs/msg/TFMessage",
         "tf_static", "tf2_msgs/msg/TFMessage",
-      # "wheel_status", "irobot_create_msgs/msg/WheelStatus",
+        "wheel_status", "irobot_create_msgs/msg/WheelStatus",
       # "wheel_ticks", "irobot_create_msgs/msg/WheelTicks",
       # "wheel_vels", "irobot_create_msgs/msg/WheelVels",
       ]
