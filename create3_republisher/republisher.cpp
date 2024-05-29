@@ -25,6 +25,10 @@
 #include "rclcpp_action/create_client.hpp"
 #include "rclcpp_action/create_server.hpp"
 
+// Macros to reduce boilerplate
+#define TRY_SETUP_SERVICE(type_arg) setup_service_if_matches<type_arg>(#type_arg, client_topic, server_topic, type)
+#define TRY_SETUP_ACTION(type_arg) setup_action_if_matches<type_arg>(#type_arg, client_topic, server_topic, type)
+
 class RepublisherNode : public rclcpp::Node
 {
 public:
@@ -39,6 +43,10 @@ public:
             this->declare_parameter("actions_timeout_sec", rclcpp::ParameterValue(600)).get<int>();
         m_actions_period_ms =
             this->declare_parameter("actions_period_ms", rclcpp::ParameterValue(50)).get<int>();
+
+        if (m_verbose) {
+            m_log_timer = this->create_wall_timer(std::chrono::seconds(1), [this]() { this->debug_log(); });
+        }
 
         const auto robot_namespace = this->get_robot_namespace();
         RCLCPP_INFO(
@@ -75,7 +83,7 @@ private:
         }
 
         remapped_names_t remapped_names;
-        remapped_names.robot_entity = robot_namespace + relative_name;\
+        remapped_names.robot_entity = robot_namespace + relative_name;
         remapped_names.this_entity = this_namespace + relative_name;
         return remapped_names;
     }
@@ -146,6 +154,7 @@ private:
             topic_type,
             rclcpp::QoS(1).durability(rclcpp::DurabilityPolicy::Volatile).reliability(rclcpp::ReliabilityPolicy::BestEffort),
             [this, publisher=publisher](std::shared_ptr<rclcpp::SerializedMessage> message) {
+                m_msg_counter++;
                 publisher->publish(*message);
             }
         );
@@ -154,58 +163,82 @@ private:
         m_subscriptions.push_back(subscriber);
     }
 
+    std::string cpp_type_to_name(const std::string & cpp_type)
+    {
+        // Converts "irobot_create_msgs::action::AudioNoteSequence" into "irobot_create_msgs/action/AudioNoteSequence"
+        std::string type_name = cpp_type;
+        const std::string to_replace = "::";
+        const std::string replacement = "/";
+        size_t pos = 0;
+        while ((pos = type_name.find(to_replace, pos)) != std::string::npos) {
+            type_name.replace(pos, to_replace.length(), replacement);
+            pos += replacement.length();
+        }
+        return type_name;
+    }
+
+    template<typename ServiceT>
+    bool setup_service_if_matches(const std::string & expected_type, const std::string & client_topic, const std::string & server_topic, const std::string & type)
+    {
+        if (cpp_type_to_name(expected_type) == type) {
+            make_service_pair<ServiceT>(client_topic, server_topic);
+            return true;
+        }
+        return false;
+    }
+
     void setup_service_republisher(
         const std::string & client_topic,
         const std::string & server_topic,
-        const std::string & service_type)
+        const std::string & type)
     {
         RCLCPP_INFO(this->get_logger(), "Remapping robot service '%s' as '%s' with type '%s'",
             client_topic.c_str(),
             server_topic.c_str(),
-            service_type.c_str());
+            type.c_str());
 
-        // Note: here we could match the service type, but that would prevent to have two services with same type but different name
-        if (entity_name_matches(client_topic, "/e_stop")) {
-            make_service_pair<irobot_create_msgs::srv::EStop>(client_topic, server_topic);
-        } else if (entity_name_matches(client_topic, "/reset_pose")) {
-            make_service_pair<irobot_create_msgs::srv::ResetPose>(client_topic, server_topic);
-        } else if (entity_name_matches(client_topic, "/robot_power")) {
-            make_service_pair<irobot_create_msgs::srv::RobotPower>(client_topic, server_topic);
-        } else {
+        bool setup_success =
+            TRY_SETUP_SERVICE(irobot_create_msgs::srv::EStop) ||
+            TRY_SETUP_SERVICE(irobot_create_msgs::srv::ResetPose) ||
+            TRY_SETUP_SERVICE(irobot_create_msgs::srv::RobotPower);
+
+        if (!setup_success) {
             throw std::runtime_error("Unrecognized service client " + client_topic);
         }
+    }
+
+    template<typename ActionT>
+    bool setup_action_if_matches(const std::string & expected_type, const std::string & client_topic, const std::string & server_topic, const std::string & type)
+    {
+        if (cpp_type_to_name(expected_type) == type) {
+            make_action_pair<ActionT>(client_topic, server_topic);
+            return true;
+        }
+        return false;
     }
 
     void setup_action_republisher(
         const std::string & client_topic,
         const std::string & server_topic,
-        const std::string & service_type)
+        const std::string & type)
     {
         RCLCPP_INFO(this->get_logger(), "Remapping robot action '%s' as '%s' with type '%s'",
             client_topic.c_str(),
             server_topic.c_str(),
-            service_type.c_str());
+            type.c_str());
 
-        // Note: here we could match the service type, but that would prevent to have two services with same type but different name
-        if (entity_name_matches(client_topic, "/audio_note_sequence")) {
-            make_action_pair<irobot_create_msgs::action::AudioNoteSequence>(client_topic, server_topic);
-        } else if (entity_name_matches(client_topic, "/dock")) {
-            make_action_pair<irobot_create_msgs::action::Dock>(client_topic, server_topic);
-        } else if (entity_name_matches(client_topic, "/drive_arc")) {
-            make_action_pair<irobot_create_msgs::action::DriveArc>(client_topic, server_topic);
-        } else if (entity_name_matches(client_topic, "/drive_distance")) {
-            make_action_pair<irobot_create_msgs::action::DriveDistance>(client_topic, server_topic);
-        } else if (entity_name_matches(client_topic, "/led_animation")) {
-            make_action_pair<irobot_create_msgs::action::LedAnimation>(client_topic, server_topic);
-        } else if (entity_name_matches(client_topic, "/navigate_to_position")) {
-            make_action_pair<irobot_create_msgs::action::NavigateToPosition>(client_topic, server_topic);
-        } else if (entity_name_matches(client_topic, "/rotate_angle")) {
-            make_action_pair<irobot_create_msgs::action::RotateAngle>(client_topic, server_topic);
-        } else if (entity_name_matches(client_topic, "/undock")) {
-            make_action_pair<irobot_create_msgs::action::Undock>(client_topic, server_topic);
-        } else if (entity_name_matches(client_topic, "/wall_follow")) {
-            make_action_pair<irobot_create_msgs::action::WallFollow>(client_topic, server_topic);
-        } else {
+        bool setup_success =
+            TRY_SETUP_ACTION(irobot_create_msgs::action::AudioNoteSequence) ||
+            TRY_SETUP_ACTION(irobot_create_msgs::action::Dock) ||
+            TRY_SETUP_ACTION(irobot_create_msgs::action::DriveArc) ||
+            TRY_SETUP_ACTION(irobot_create_msgs::action::DriveDistance) ||
+            TRY_SETUP_ACTION(irobot_create_msgs::action::LedAnimation) ||
+            TRY_SETUP_ACTION(irobot_create_msgs::action::NavigateToPosition) ||
+            TRY_SETUP_ACTION(irobot_create_msgs::action::RotateAngle) ||
+            TRY_SETUP_ACTION(irobot_create_msgs::action::Undock) ||
+            TRY_SETUP_ACTION(irobot_create_msgs::action::WallFollow);
+
+        if (!setup_success) {
             throw std::runtime_error("Unrecognized action client " + client_topic);
         }
     }
@@ -322,21 +355,11 @@ private:
                     }
                 });
                 action_thread.detach();
-            },
-            rcl_action_server_get_default_options(),
-            nullptr);
+            }
+        );
         
         m_action_clients.push_back(client);
         m_action_servers.push_back(server);
-    }
-
-    bool entity_name_matches(const std::string & full_name, const std::string & entity_name)
-    {
-        // This function currently checks whether the "full_name" ends with the "entity_name"
-        if (full_name.length() < entity_name.length()) {
-            return false;
-        }
-        return full_name.substr(full_name.length() - entity_name.length()) == entity_name;
     }
 
     std::string get_robot_namespace()
@@ -358,6 +381,11 @@ private:
         return robot_namespace;
     }
 
+    void debug_log()
+    {
+        RCLCPP_INFO(this->get_logger(), "Republished messages: %zu", m_msg_counter.load());
+    }
+
     std::vector<std::shared_ptr<rclcpp::CallbackGroup>> m_callback_groups;
     std::vector<std::shared_ptr<rclcpp::SubscriptionBase>> m_subscriptions;
     std::vector<std::shared_ptr<rclcpp::PublisherBase>> m_publishers;
@@ -369,7 +397,10 @@ private:
     int m_services_timeout_sec {60};
     int m_actions_timeout_sec {600};
     int m_actions_period_ms {50};
+    std::atomic<size_t> m_msg_counter {0};
     bool m_verbose {false};
+
+    rclcpp::TimerBase::SharedPtr m_log_timer;
 };
 
 int main(int argc, char ** argv)
