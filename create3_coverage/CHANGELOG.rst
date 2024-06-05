@@ -2,8 +2,8 @@
 Changelog for package create3_coverage
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.2 (2024-06-05)
+------------------
 * Merge pull request `#39 <https://github.com/iRobotEducation/create3_examples/issues/39>`_ from iRobotEducation/jkearns/topic-fix
   change dock topic to dock_status for humble
 * fix topic for humble

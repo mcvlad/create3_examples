@@ -2,8 +2,8 @@
 Changelog for package create3_examples_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.2 (2024-06-05)
+------------------
 * Merge pull request `#15 <https://github.com/iRobotEducation/create3_examples/issues/15>`_ from iRobotEducation/justinIRBT/dance_clean_shutdown
   Dance: Handle exceptions for cleaner exit
 * add sys dependency

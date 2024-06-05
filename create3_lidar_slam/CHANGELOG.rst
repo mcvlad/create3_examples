@@ -2,8 +2,8 @@
 Changelog for package create3_lidar_slam
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.2 (2024-06-05)
+------------------
 * Merge pull request `#51 <https://github.com/iRobotEducation/create3_examples/issues/51>`_ from iRobotEducation/shamlian/fix-50
   Remove name for rplidar_node in LIDAR SLAM example.
 * Remove name for rplidar_node

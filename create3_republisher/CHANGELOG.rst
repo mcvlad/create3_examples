@@ -2,8 +2,8 @@
 Changelog for package create3_republisher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.2 (2024-06-05)
+------------------
 * update republisher
 * Merge pull request `#54 <https://github.com/iRobotEducation/create3_examples/issues/54>`_ from hilary-luo/hluo/turtlebot4-republisher
   Turtlebot4 Republisher
