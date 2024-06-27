@@ -35,8 +35,8 @@ public:
     RepublisherNode(const rclcpp::NodeOptions & options = rclcpp::NodeOptions())
     : rclcpp::Node("create3_repub", options)
     {
-        m_verbose =
-            this->declare_parameter("verbose_log", rclcpp::ParameterValue(false)).get<bool>();
+        auto verbose_log_period_sec =
+            this->declare_parameter("verbose_log_period_sec", rclcpp::ParameterValue(-1)).get<int>();
         m_services_timeout_sec =
             this->declare_parameter("services_timeout_sec", rclcpp::ParameterValue(60)).get<int>();
         m_actions_timeout_sec =
@@ -44,8 +44,8 @@ public:
         m_actions_period_ms =
             this->declare_parameter("actions_period_ms", rclcpp::ParameterValue(50)).get<int>();
 
-        if (m_verbose) {
-            m_log_timer = this->create_wall_timer(std::chrono::seconds(1), [this]() { this->debug_log(); });
+        if (verbose_log_period_sec > 0) {
+            m_log_timer = this->create_wall_timer(std::chrono::seconds(verbose_log_period_sec), [this]() { this->debug_log(); });
         }
 
         const auto robot_namespace = this->get_robot_namespace();
@@ -155,6 +155,7 @@ private:
             rclcpp::QoS(1).durability(rclcpp::DurabilityPolicy::Volatile).reliability(rclcpp::ReliabilityPolicy::BestEffort),
             [this, publisher=publisher](std::shared_ptr<rclcpp::SerializedMessage> message) {
                 m_msg_counter++;
+                ++m_topics_map[publisher->get_topic_name()];
                 publisher->publish(*message);
             }
         );
@@ -383,7 +384,10 @@ private:
 
     void debug_log()
     {
-        RCLCPP_INFO(this->get_logger(), "Republished messages: %zu", m_msg_counter.load());
+        RCLCPP_INFO(this->get_logger(), "Total republished messages: %zu", m_msg_counter.load());
+        for (const auto & [key, value] : m_topics_map) {
+            RCLCPP_INFO(this->get_logger(), " - Topic '%s' count: %zu", key.c_str(), value);
+        }
     }
 
     std::vector<std::shared_ptr<rclcpp::CallbackGroup>> m_callback_groups;
@@ -398,7 +402,7 @@ private:
     int m_actions_timeout_sec {600};
     int m_actions_period_ms {50};
     std::atomic<size_t> m_msg_counter {0};
-    bool m_verbose {false};
+    std::map<std::string, size_t> m_topics_map;
 
     rclcpp::TimerBase::SharedPtr m_log_timer;
 };
