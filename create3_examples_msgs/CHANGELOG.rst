@@ -2,8 +2,8 @@
 Changelog for package create3_examples_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.4 (2024-06-27)
+------------------
 * add missing buildtool dependency in create3_examples_msgs
 * Contributors: Alberto Soragna
 
