@@ -2,6 +2,9 @@
 Changelog for package create3_examples_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.0.2 (2024-06-05)
 ------------------
 * Merge pull request `#17 <https://github.com/iRobotEducation/create3_examples/issues/17>`_ from iRobotEducation/asoragna/rename-duration

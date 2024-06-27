@@ -2,6 +2,11 @@
 Changelog for package create3_republisher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add debug statistics
+* Contributors: Alberto Soragna
+
 0.0.2 (2024-06-05)
 ------------------
 * update republisher
