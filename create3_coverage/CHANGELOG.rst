@@ -2,6 +2,11 @@
 Changelog for package create3_coverage
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* update create3_coverage package.xml
+* Contributors: Alberto Soragna
+
 0.0.4 (2024-06-27)
 ------------------
 
