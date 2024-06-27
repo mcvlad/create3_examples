@@ -6,7 +6,7 @@ package_name = 'create3_teleop'
 
 setup(
     name=package_name,
-    version='0.0.2',
+    version='0.0.3',
     packages=[],
     data_files=[
         (os.path.join('share','ament_index', 'resource_index', 'packages'),
