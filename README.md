@@ -17,8 +17,6 @@ You should only have to do this once per install.
 mkdir -p create3_examples_ws/src
 cd create3_examples_ws/src
 git clone https://github.com/iRobotEducation/create3_examples.git --branch jazzy
-# until irobot_create_msgs are released for jazzy, additionally clone them
-git clone https://github.com/iRobotEducation/irobot_create_msgs.git
 cd ..
 rosdep install --from-path src --ignore-src -yi
 colcon build
