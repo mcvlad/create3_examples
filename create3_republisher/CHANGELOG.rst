@@ -2,8 +2,8 @@
 Changelog for package create3_republisher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2024-09-28)
+------------------
 * Merge pull request `#58 <https://github.com/iRobotEducation/create3_examples/issues/58>`_ from civerachb-cpr/patch-1
   Adds the new `/cmd_vel_stamped` topic to the robot subscriptions.
 * Merge pull request `#56 <https://github.com/iRobotEducation/create3_examples/issues/56>`_ from hilary-luo/hluo/rel-namespace-fix
