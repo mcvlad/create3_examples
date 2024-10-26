@@ -43,9 +43,11 @@ class JoystickConfigParser(Substitution):
 def generate_launch_description():
     joy_config = LaunchConfiguration('joy_config')
     joy_dev = LaunchConfiguration('joy_dev')
+    namespace = LaunchConfiguration('namespace')
 
     # Invokes a node that interfaces a generic joystick to ROS 2.
     joy_node = Node(package='joy', executable='joy_node', name='joy_node',
+                    namespace=namespace,
                     parameters=[{
                         'dev': joy_dev,
                         'deadzone': 0.3,
@@ -58,7 +60,9 @@ def generate_launch_description():
 
     # Publish unstamped Twist message from an attached USB Joystick.
     teleop_node = Node(package='teleop_twist_joy', executable='teleop_node',
-                       name='teleop_twist_joy_node', parameters=[config_filepath])
+                       name='teleop_twist_joy_node', 
+                       namespace=namespace, 
+                       parameters=[config_filepath])
 
     # Declare launchfile arguments
     ld_args = []
@@ -67,6 +71,9 @@ def generate_launch_description():
                                          choices=['xbox', 'ps3', 'ps3-holonomic', 'atk3', 'xd3']))
     ld_args.append(DeclareLaunchArgument('joy_dev',
                                          default_value='/dev/input/js0'))
+    ld_args.append(DeclareLaunchArgument('namespace',
+                                         default_value='',
+                                         description='Namespace for the nodes'))
 
     # Define LaunchDescription variable
     ld = LaunchDescription(ld_args)
